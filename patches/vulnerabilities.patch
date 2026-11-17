@@ -1,0 +1,43 @@
+--- a/vulnerable_app/app.py
++++ b/vulnerable_app/app.py
+@@ -72,15 +72,15 @@
+ def search():
+     query = request.args.get("q", "")
+ 
+-    # УЯЗВИМОСТЬ №1 (SQL Injection): пользовательский ввод вставляется
+-    # непосредственно в SQL-строку. Не используйте такой подход в реальных системах.
++    # ИСПРАВЛЕНО: значение пользователя передаётся отдельно от SQL-команды.
++    # Оно больше не может изменить структуру запроса.
+     sql = (
+         "SELECT title, body, is_private FROM posts "
+-        f"WHERE is_private = 0 AND title LIKE '%{query}%'"
++        "WHERE is_private = 0 AND title LIKE ?"
+     )
+ 
+     with get_db() as db:
+-        results = db.execute(sql).fetchall()
++        results = db.execute(sql, (f"%{query}%",)).fetchall()
+ 
+     return render_template("search.html", query=query, results=results)
+ 
+@@ -104,5 +104,5 @@
+ 
+ if __name__ == "__main__":
+     init_db()
+-    # Доступ только с этого компьютера. Не меняйте host на 0.0.0.0.
+-    app.run(host="127.0.0.1", port=5000, debug=False)
++    # Доступ только с этого компьютера.
++    app.run(host="127.0.0.1", port=5001, debug=False)
+--- a/vulnerable_app/templates/index.html
++++ b/vulnerable_app/templates/index.html
+@@ -39,8 +39,8 @@
+   {% for comment in comments %}
+     <article class="card">
+       <strong>{{ comment.author }}</strong>
+-      <!-- УЯЗВИМОСТЬ №2 (Stored XSS): |safe отключает автоэкранирование Jinja. -->
+-      <div>{{ comment.content | safe }}</div>
++      <!-- ИСПРАВЛЕНО: стандартное автоэкранирование Jinja сохранено. -->
++      <div>{{ comment.content }}</div>
+     </article>
+   {% else %}
+     <p>Пока комментариев нет.</p>

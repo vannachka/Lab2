@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учебный портал — главная</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:900px;margin:36px auto;padding:0 18px;line-height:1.5;color:#222}
+    input,textarea,button{font:inherit;padding:8px;margin:4px 0;max-width:100%}
+    textarea{width:95%;height:80px} .card{border:1px solid #ddd;border-radius:8px;padding:14px;margin:12px 0}
+    .notice{background:#fff4d6;padding:10px;border-radius:6px} .muted{color:#666}
+  </style>
+</head>
+<body>
+  <h1>Учебный портал</h1>
+  <p class="muted">Локальное приложение для лабораторной работы по веб-безопасности.</p>
+  {% with messages = get_flashed_messages() %}
+    {% for message in messages %}<p class="notice">{{ message }}</p>{% endfor %}
+  {% endwith %}
+
+  <section class="card">
+    <h2>Поиск публичных материалов</h2>
+    <form action="{{ url_for('search') }}" method="get">
+      <input name="q" placeholder="Например, Flask" size="40">
+      <button type="submit">Найти</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Оставить комментарий</h2>
+    <form action="{{ url_for('add_comment') }}" method="post">
+      <label>Имя<br><input name="author" maxlength="40" value="Студент"></label><br>
+      <label>Комментарий<br><textarea name="content" maxlength="1000" required></textarea></label><br>
+      <button type="submit">Отправить</button>
+    </form>
+  </section>
+
+  <h2>Комментарии</h2>
+  {% for comment in comments %}
+    <article class="card">
+      <strong>{{ comment.author }}</strong>
+      <!-- УЯЗВИМОСТЬ №2 (Stored XSS): |safe отключает автоэкранирование Jinja. -->
+      <div>{{ comment.content | safe }}</div>
+    </article>
+  {% else %}
+    <p>Пока комментариев нет.</p>
+  {% endfor %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Результаты поиска</title>
+<style>body{font-family:Arial,sans-serif;max-width:900px;margin:36px auto;padding:0 18px;line-height:1.5}.card{border:1px solid #ddd;border-radius:8px;padding:14px;margin:12px 0}.private{color:#a00;font-weight:bold}</style></head>
+<body>
+  <h1>Результаты поиска</h1>
+  <p>Запрос: <strong>{{ query }}</strong></p>
+  <p><a href="{{ url_for('index') }}">На главную</a></p>
+  {% for item in results %}
+    <article class="card">
+      <h2>{{ item.title }}</h2>
+      <p>{{ item.body }}</p>
+      {% if item.is_private %}<p class="private">СЛУЖЕБНАЯ ЗАПИСЬ (не должна отображаться)</p>{% endif %}
+    </article>
+  {% else %}
+    <p>Ничего не найдено.</p>
+  {% endfor %}
+</body>
+</html>
